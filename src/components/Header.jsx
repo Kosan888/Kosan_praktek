@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/customSupabaseClient'; // Pastikan path ini sesuai dengan AuthModal.jsx Anda
+import { supabase } from '@/lib/customSupabaseClient'; 
 import AuthModal from './AuthModal';
 
-const Header = () => {
+const Header = ({ onLoginClick, onSignupClick }) => {
   const navigate = useNavigate();
-  
-  // State untuk modal & data user
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [modalView, setModalView] = useState('login');
   const [user, setUser] = useState(null);
 
-  // 1. Cek Status Login User (Realtime)
+  // Realtime Auth Listener
   useEffect(() => {
-    // Cek session awal saat halaman dimuat
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
     };
     getSession();
 
-    // Pasang 'telinga' untuk mendengar perubahan login/logout
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
@@ -27,68 +24,68 @@ const Header = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // 2. Fungsi Tombol Profil dengan Logika Cerdas
   const handleProfileClick = () => {
     if (user) {
-      // JIKA SUDAH LOGIN: Arahkan ke halaman profil
       navigate('/profile');
     } else {
-      // JIKA BELUM LOGIN: Buka popup login/daftar
-      setIsAuthModalOpen(true);
+      // Buka modal login internal jika props tidak tersedia
+      if (onLoginClick) {
+        onLoginClick();
+      } else {
+        setModalView('login');
+        setIsAuthModalOpen(true);
+      }
     }
   };
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 bg-white z-40 border-b border-gray-100 shadow-sm">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-center relative">
+      <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-40 border-b border-gray-100 shadow-sm transition-all">
+        <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
           
           {/* Logo */}
           <div 
-            className="cursor-pointer transition-transform hover:scale-105" 
+            className="cursor-pointer flex items-center gap-2 group" 
             onClick={() => navigate('/')}
           >
+             {/* Ganti src dengan logo kamu yang valid */}
             <img 
               src="https://horizons-cdn.hostinger.com/fe0ceffa-a268-4ed7-9517-b00266208690/82f0ec3177ec7c28e1cd03e5f4aac30f.jpg" 
               alt="Kosan Logo" 
-              className="h-[60px] w-auto object-contain" 
+              className="h-10 w-auto object-contain group-hover:scale-105 transition-transform" 
             />
           </div>
 
-          {/* TOMBOL PROFIL (Desktop Only) */}
-          <div className="absolute right-4 hidden md:flex items-center">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-6">
+            <nav className="flex gap-6 text-sm font-bold text-gray-500 uppercase tracking-wide">
+                <button onClick={() => navigate('/')} className="hover:text-black transition-colors">Beranda</button>
+                <button onClick={() => navigate('/#featured-section')} className="hover:text-black transition-colors">Cari Kos</button>
+            </nav>
+
+            <div className="w-px h-6 bg-gray-200"></div>
+
             <button 
               onClick={handleProfileClick}
-              className={`p-2 rounded-full transition-all duration-200 ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
                 user 
-                  ? "text-black bg-gray-100 hover:bg-gray-200" // Style jika sudah login (lebih bold)
-                  : "text-gray-600 hover:text-blue-600 hover:bg-gray-50" // Style jika tamu
+                  ? "bg-black text-white hover:bg-gray-800 shadow-lg" 
+                  : "bg-gray-100 text-black hover:bg-gray-200"
               }`}
-              title={user ? "Ke Profil Saya" : "Masuk / Daftar"}
             >
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className="h-7 w-7" 
-                fill={user ? "currentColor" : "none"} // Icon terisi jika login
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" 
-                />
-              </svg>
+              <span className="text-xs font-black uppercase tracking-widest">
+                {user ? "Akun Saya" : "Masuk / Daftar"}
+              </span>
             </button>
           </div>
-
         </div>
       </header>
 
+      {/* Internal Auth Modal (Fallback jika props tidak dikirim) */}
       <AuthModal 
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
+        initialView={modalView}
       />
     </>
   );
