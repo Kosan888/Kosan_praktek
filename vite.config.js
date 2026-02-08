@@ -1,13 +1,21 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url'; // Tambahan untuk memperbaiki __dirname
 import react from '@vitejs/plugin-react';
 import { createLogger, defineConfig } from 'vite';
+
+// Plugin visual editor (Biarkan jika bawaan template kamu, hapus jika error not found)
 import inlineEditPlugin from './plugins/visual-editor/vite-plugin-react-inline-editor.js';
 import editModeDevPlugin from './plugins/visual-editor/vite-plugin-edit-mode.js';
 import iframeRouteRestorationPlugin from './plugins/vite-plugin-iframe-route-restoration.js';
 import selectionModePlugin from './plugins/selection-mode/vite-plugin-selection-mode.js';
 
+// --- PERBAIKAN __dirname UNTUK ES MODULES ---
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const isDev = process.env.NODE_ENV !== 'production';
 
+// --- SCRIPT ERROR HANDLING BAWAAN (Biarkan Saja) ---
 const configHorizonsViteErrorHandler = `
 const observer = new MutationObserver((mutations) => {
 	for (const mutation of mutations) {
@@ -233,9 +241,13 @@ logger.error = (msg, options) => {
 	loggerError(msg, options);
 }
 
+// --- KONFIGURASI UTAMA ---
 export default defineConfig({
 	customLogger: logger,
 	plugins: [
+		// Plugin ini dimuat hanya jika file-nya ada (biasanya di environment cloud tertentu)
+        // Jika nanti saat build di Netlify error "Cannot find module", 
+        // hapus baris di dalam [... ] ini kecuali react() dan addTransformIndexHtml
 		...(isDev ? [inlineEditPlugin(), editModeDevPlugin(), iframeRouteRestorationPlugin(), selectionModePlugin()] : []),
 		react(),
 		addTransformIndexHtml
@@ -250,7 +262,8 @@ export default defineConfig({
 	resolve: {
 		extensions: ['.jsx', '.js', '.tsx', '.ts', '.json', ],
 		alias: {
-			'@': path.resolve(__dirname, './src'),
+            // Ini konfigurasi penting agar import "@/components" jalan
+			'@': path.resolve(__dirname, './src'), 
 		},
 	},
 	build: {
