@@ -1,96 +1,70 @@
 import React, { useState } from 'react';
-import { MapPin, Calendar, Search } from 'lucide-react'; // Ganti icon Search
+import { MapPin, Search } from 'lucide-react'; 
 import { motion } from 'framer-motion';
 
-const Hero = ({ onSearch }) => { // Terima prop onSearch
-  const [location, setLocation] = useState('');
-  const [checkInDate, setCheckInDate] = useState('');
+const Hero = ({ onSearch }) => { 
+  const [query, setQuery] = useState('');
 
-  const handleSearchClick = () => {
-    // Kirim lokasi ke Home (meskipun kosong, agar bisa reset)
-    if (onSearch) {
-      onSearch(location);
-    }
+  const handleSearch = () => {
+    if (onSearch) onSearch(query);
     
-    // Scroll otomatis ke bagian daftar kosan
-    const element = document.getElementById('properties');
+    // Scroll ke section properti
+    const element = document.getElementById('featured-properties');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-  return (
-    <section className="relative bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white py-20 overflow-hidden">
-      <div className="absolute inset-0 bg-black opacity-60"></div>
-      
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.6 }} 
-          className="text-center mb-12"
-        >
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">Temukan Tempat istirahat sementara</h1>
-          <p className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-            <span className="text-gray-400">Nyaman & Modern.</span>
-          </p>
-          <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
-            Platform pemesanan kos dan apartemen dengan standar kualitas bersih, aman, dan transparan di seluruh Indonesia.
-          </p>
-        </motion.div>
+  const handleKeyPress = (e) => {
+      if (e.key === 'Enter') handleSearch();
+  };
 
+  return (
+    <section className="relative bg-black text-white py-24 md:py-32 overflow-hidden">
+      {/* Background Image/Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-black to-black opacity-90 z-10"></div>
+      <div 
+        className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556020685-ae41abfc9365?q=80&w=2574&auto=format&fit=crop')] bg-cover bg-center opacity-40 grayscale"
+      ></div>
+      
+      <div className="relative z-20 max-w-7xl mx-auto px-4 text-center">
         <motion.div 
           initial={{ opacity: 0, y: 30 }} 
           animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.6, delay: 0.2 }} 
-          className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-4xl mx-auto"
+          transition={{ duration: 0.8 }}
         >
-          <div className="grid md:grid-cols-2 gap-4 mb-4">
-            <div className="relative">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">LOKASI</label>
-              <div className="relative">
-                <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input 
-                  type="text" 
-                  placeholder="Mau cari kos dimana? (misal: Bandung)" 
-                  value={location} 
-                  onChange={e => setLocation(e.target.value)} 
-                  className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-gray-900" 
-                />
-              </div>
-            </div>
-
-            <div className="relative">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">TANGGAL MASUK</label>
-              <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input 
-                  type="date" 
-                  value={checkInDate} 
-                  onChange={e => setCheckInDate(e.target.value)} 
-                  min={new Date().toISOString().split('T')[0]} 
-                  className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-gray-900" 
-                />
-              </div>
-            </div>
-          </div>
-
-          <button 
-            onClick={handleSearchClick} 
-            className="w-full bg-black text-white py-4 rounded-lg font-semibold text-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
-          >
-            <Search size={20} />
-            Cari Kos
-          </button>
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black italic uppercase tracking-tighter mb-6 leading-none">
+            Hunian Impian <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500">Tanpa Ribet.</span>
+          </h1>
+          <p className="text-gray-400 text-sm md:text-lg font-bold uppercase tracking-[0.2em] mb-10 max-w-2xl mx-auto leading-relaxed">
+            Platform sewa kos & apartemen dengan teknologi Smart Lock. Akses mudah, aman, dan transparan.
+          </p>
         </motion.div>
 
         <motion.div 
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }} 
-          transition={{ duration: 0.6, delay: 0.4 }} 
-          className="text-center mt-12"
+          initial={{ opacity: 0, scale: 0.9 }} 
+          animate={{ opacity: 1, scale: 1 }} 
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="bg-white p-2 rounded-[24px] max-w-2xl mx-auto shadow-2xl flex flex-col md:flex-row items-center gap-2"
         >
-          <p className="text-sm text-gray-400 uppercase tracking-wider mb-4">DIPERCAYA OLEH 2,000+ PENGGUNA DI INDONESIA</p>
+          <div className="flex-1 flex items-center px-4 h-14 w-full">
+            <MapPin className="text-black mr-3" size={20} />
+            <input 
+                type="text" 
+                placeholder="Cari lokasi (misal: Bandung)..." 
+                className="w-full h-full bg-transparent border-none text-black font-bold placeholder:text-gray-400 focus:ring-0 outline-none"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleKeyPress}
+            />
+          </div>
+          
+          <button 
+            onClick={handleSearch}
+            className="w-full md:w-auto bg-black text-white h-14 px-8 rounded-[20px] font-black uppercase italic tracking-widest flex items-center justify-center gap-2 hover:bg-gray-800 transition-all active:scale-95"
+          >
+            <Search size={18} /> Cari
+          </button>
         </motion.div>
       </div>
     </section>
