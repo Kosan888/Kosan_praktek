@@ -4,10 +4,9 @@ import { Helmet } from 'react-helmet';
 import Home from '@/pages/Home';
 import Profile from '@/pages/Profile'; 
 import PropertyDetail from '@/pages/PropertyDetail';
-import BookingPage from '@/pages/BookingPage'; // Pastikan sesuai nama di folder pages
+import BookingPage from '@/pages/BookingPage';
 import PartnerRegistration from '@/pages/PartnerRegistration'; 
 import DashboardMitra from '@/pages/DashboardMitra'; 
-
 import ForgotPassword from '@/pages/ForgotPassword';
 import UpdatePassword from '@/pages/UpdatePassword';
 
@@ -23,17 +22,23 @@ function App() {
         </Helmet>
         
         <Routes>
+          {/* Halaman Utama */}
           <Route path="/" element={<Home />} />
+          
+          {/* Halaman Akun & Mitra */}
           <Route path="/profile" element={<Profile />} />
           <Route path="/register-mitra" element={<PartnerRegistration />} /> 
           <Route path="/dashboard-mitra" element={<DashboardMitra />} />
-          <Route path="/property/:id" element={<PropertyDetail />} />
           
-          {/* RUTE BOOKING TERPISAH */}
+          {/* Halaman Booking */}
+          <Route path="/property/:id" element={<PropertyDetail />} />
           <Route path="/booking/:id" element={<BookingPage />} />
 
+          {/* Halaman Auth */}
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/update-password" element={<UpdatePassword />} />
+          
+          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         
