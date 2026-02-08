@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import PopularCities from '@/components/PopularCities';
 import FeaturedProperties from '@/components/FeaturedProperties';
 import Testimonials from '@/components/Testimonials';
 import Footer from '@/components/Footer';
-import BookingFlow from '@/components/BookingFlow';
 import BottomNav from '@/components/BottomNav';
 import AuthModal from '@/components/AuthModal';
 
 const Home = () => {
-  const [showBookingFlow, setShowBookingFlow] = useState(false);
-  const [initialSearchData, setInitialSearchData] = useState(null);
+  const navigate = useNavigate(); // Hook untuk navigasi
   
   // State untuk menangkap kata kunci dari Hero
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,14 +18,21 @@ const Home = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authInitialView, setAuthInitialView] = useState('login');
 
-  const handleStartBooking = (searchData) => {
-    setInitialSearchData(searchData);
-    setShowBookingFlow(true);
-  };
-
-  const handleCloseBooking = () => {
-    setShowBookingFlow(false);
-    setInitialSearchData(null);
+  // PERBAIKAN: Fungsi ini sekarang mengarahkan user ke halaman Detail
+  const handleStartBooking = (data) => {
+    // Jika komponen FeaturedProperties mengirimkan ID properti
+    if (data && (typeof data === 'string' || typeof data === 'number')) {
+        navigate(`/property/${data}`);
+    } 
+    // Jika mengirim object properti lengkap
+    else if (data?.id) {
+        navigate(`/property/${data.id}`);
+    } 
+    // Fallback: Jika tombol diklik tanpa ID khusus, scroll ke list properti
+    else {
+        const element = document.getElementById('featured-properties');
+        if (element) element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const openAuthModal = (view = 'login') => {
@@ -43,20 +49,19 @@ const Home = () => {
       
       <PopularCities />
       
-      {/* FeaturedProperties melakukan filter berdasarkan searchQuery */}
-      <FeaturedProperties 
-        searchQuery={searchQuery} 
-        onBookNow={handleStartBooking} 
-      />
+      {/* Tambahkan id="featured-properties" agar bisa di-scroll */}
+      <div id="featured-properties">
+        <FeaturedProperties 
+            searchQuery={searchQuery} 
+            onBookNow={handleStartBooking} 
+        />
+      </div>
       
       <Testimonials />
       <Footer />
       <BottomNav onAccountClick={() => openAuthModal('login')} />
       
-      {showBookingFlow && (
-        <BookingFlow initialData={initialSearchData} onClose={handleCloseBooking} />
-      )}
-      
+      {/* Auth Modal tetap ada untuk login/register */}
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} initialView={authInitialView} />
     </div>
   );
